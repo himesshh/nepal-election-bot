@@ -57,7 +57,7 @@ NEWS_SOURCES = {
 }
 
 FACTCHECK_SOURCE = {
-    "rss"  : "https://techpana.com/category/factcheck/feed",
+    "rss"  : "https://techpana.com/rss",
     "emoji": "🔍",
     "color": 0x84CC16,
 }
@@ -288,9 +288,18 @@ async def poll():
                 except discord.HTTPException as e:
                     log.error(f"Discord error: {e}")
 
-        # Factcheck
+        # Factcheck — only articles that are actually factchecks
+        # Techpana uses /factcheck/ in URL or "fact check"/"factcheck" in title
+        def is_factcheck(a):
+            link_lower  = a["link"].lower()
+            title_lower = a["title"].lower()
+            return ("factcheck" in link_lower or "fact-check" in link_lower or
+                    "fact check" in title_lower or "factcheck" in title_lower or
+                    "फ्याक्ट" in a["title"] or "तथ्यजाँच" in a["title"])
+
         if factcheck_ch:
             for a in await fetch_feed(session, FACTCHECK_SOURCE["rss"]):
+                if not is_factcheck(a): continue   # skip non-factcheck articles
                 aid = uid(a["link"])
                 if aid in seen: continue
                 seen.add(aid)
