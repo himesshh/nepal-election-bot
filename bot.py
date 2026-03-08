@@ -137,7 +137,7 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 bot     = commands.Bot(command_prefix="!", intents=intents)
 seen: set = set()
 
